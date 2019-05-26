@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+# vim: filetype=sh syntax=sh
+
+_date_seconds=$(date '+%s')
+
+function _get_output_file()
+{
+  _date_seconds_formatted=$(date -jf '%s' $_date_seconds '+%Y%m%d_%H%M%S')
+
+  echo "${_date_seconds_formatted}${_extension}"
+}
+
+while read _input_file
+do
+  if [[ "$_input_file" =~ \. ]]  # If file name has extension (contains a period)
+  then
+    _extension=".${_input_file##*.}"
+  fi
+
+  _output_file=$(_get_output_file)
+
+  while [[ -e "$_output_file" ]]
+  do
+    ((_date_seconds++))
+
+    _output_file=$(_get_output_file)
+  done
+
+  mv -n "$_input_file" "$_output_file"
+done
+
